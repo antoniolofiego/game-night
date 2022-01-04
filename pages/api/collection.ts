@@ -56,8 +56,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 	const username = req.body.username;
 	const URL = `${BASE_URL}/collection?username=${username}&own=1`;
 
-	let collection: number[];
-
 	const recursiveFetch = async (URL: string) => {
 		const response = await axios.get(URL, {
 			responseType: 'text',
@@ -75,15 +73,14 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 			}
 			case 200: {
 				try {
+					let ids: string | undefined;
+
 					parseString(response.data, (err, result) => {
-						collection = result?.items?.item.map((game: CollectionItem) =>
-							parseInt(game.$.objectid)
-						);
+						const collection: CollectionItem[] = result.items.item;
+						ids = collection
+							.map((game: CollectionItem) => parseInt(game.$.objectid))
+							.join(',');
 					});
-
-					const ids = collection.join(',');
-
-					let gameDetails: Game[] = [];
 
 					const URL = `${BASE_URL}/thing?id=${ids}`;
 
@@ -93,6 +90,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 					});
 
 					let games: BoardGame[];
+					let gameDetails: Game[] = [];
 
 					parseString(gameResponse.data, (err, result) => {
 						games = result.items.item;

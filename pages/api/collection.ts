@@ -19,7 +19,7 @@ type Game = {
 	categories: string;
 };
 
-const parseGame = (game: BoardGame): Game => {
+const parseGame = (game: BoardGame): Game | null => {
 	const mechanics = game.link
 		.filter((item) => {
 			return item.$.type === 'boardgamemechanic';
@@ -34,18 +34,22 @@ const parseGame = (game: BoardGame): Game => {
 		.map((category) => category.$.value)
 		.join('|');
 
-	return {
-		bgg_id: parseInt(game.$.id),
-		name: game.name[0].$.value,
-		minPlayers: parseInt(game.minplayers[0]?.$.value),
-		maxPlayers: parseInt(game.maxplayers[0]?.$.value),
-		thumbnail: game.thumbnail[0],
-		image: game.image[0],
-		description: game.description[0],
-		playingTime: parseInt(game.playingtime[0]?.$.value),
-		mechanics: mechanics,
-		categories: categories,
-	};
+	try {
+		return {
+			bgg_id: parseInt(game.$.id),
+			name: game.name[0].$.value,
+			minPlayers: parseInt(game.minplayers[0]?.$.value),
+			maxPlayers: parseInt(game.maxplayers[0]?.$.value),
+			thumbnail: game.thumbnail[0],
+			image: game.image[0],
+			description: game.description[0],
+			playingTime: parseInt(game.playingtime[0]?.$.value),
+			mechanics: mechanics,
+			categories: categories,
+		};
+	} catch (err) {
+		return null;
+	}
 };
 
 const setTimeoutAsCallback = (callback: () => any) => {
@@ -95,7 +99,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 					parseString(gameResponse.data, (err, result) => {
 						games = result.items.item;
 						games.map((game) => {
-							gameDetails.push(parseGame(game));
+							const parsedGame = parseGame(game);
+							if (parsedGame) gameDetails.push(parsedGame);
 						});
 					});
 
@@ -113,7 +118,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 					res.send(gameDetails);
 					break;
 				} catch (err) {
-					res.status(err.response.status).send({ message: err.message });
+					if (err.response.status) {
+						res.status(err.response.status).send({ message: err.message });
+						break;
+					}
+					res.status(500).send({ message: err.message });
 					break;
 				}
 			}

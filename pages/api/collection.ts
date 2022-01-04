@@ -2,112 +2,119 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import axios from 'axios';
 import { parseString } from 'xml2js';
 import { supabase } from '@utils/supabase';
-
+import { BoardGame } from '_types/BoardGame';
+import { CollectionItem } from '_types/CollectionItem';
 const BASE_URL = 'https://www.boardgamegeek.com/xmlapi2';
-
-const setTimeoutAsCallback = (callback: () => any) => {
-	setTimeout(callback, 1000);
-};
-
-export interface GameAPIResponse {
-	$: $;
-	name?: NameEntity[] | null;
-	yearpublished?: string[] | null;
-	image?: string[] | null;
-	thumbnail?: string[] | null;
-	status?: StatusEntity[] | null;
-	numplays?: string[] | null;
-	comment?: string[] | null;
-}
-export interface $ {
-	objecttype: string;
-	objectid: string;
-	subtype: string;
-	collid: string;
-}
-export interface NameEntity {
-	_: string;
-	$: $1;
-}
-export interface $1 {
-	sortindex: string;
-}
-export interface StatusEntity {
-	$: $2;
-}
-export interface $2 {
-	own: string;
-	prevowned: string;
-	fortrade: string;
-	want: string;
-	wanttoplay: string;
-	wanttobuy: string;
-	wishlist: string;
-	preordered: string;
-	lastmodified: string;
-}
 
 type Game = {
 	bgg_id: number;
 	name: string;
-	image_url: string;
-	thumbnail_url: string;
+	minPlayers: number;
+	maxPlayers: number;
+	thumbnail: string;
+	image: string;
+	description: string;
+	playingTime: number;
+	mechanics: string;
+	categories: string;
 };
 
-const transformCollection = (collection: GameAPIResponse[]): Game[] => {
-	return collection.map((game: GameAPIResponse) => {
-		const name = game.name ? game.name[0]._ : '';
-		const image_url = game.image ? game.image[0] : '';
-		const thumbnail_url = game.thumbnail ? game.thumbnail[0] : '';
+const parseGame = (game: BoardGame): Game => {
+	const mechanics = game.link
+		.filter((item) => {
+			return item.$.type === 'boardgamemechanic';
+		})
+		.map((mechanic) => mechanic.$.value)
+		.join('|');
 
-		return {
-			bgg_id: parseInt(game.$.objectid),
-			name,
-			image_url,
-			thumbnail_url,
-		};
-	});
+	const categories = game.link
+		.filter((link) => {
+			return link.$.type === 'boardgamecategory';
+		})
+		.map((category) => category.$.value)
+		.join('|');
+
+	return {
+		bgg_id: parseInt(game.$.id),
+		name: game.name[0].$.value,
+		minPlayers: parseInt(game.minplayers[0]?.$.value),
+		maxPlayers: parseInt(game.maxplayers[0]?.$.value),
+		thumbnail: game.thumbnail[0],
+		image: game.image[0],
+		description: game.description[0],
+		playingTime: parseInt(game.playingtime[0]?.$.value),
+		mechanics: mechanics,
+		categories: categories,
+	};
+};
+
+const setTimeoutAsCallback = (callback: () => any) => {
+	setTimeout(callback, 1000);
 };
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 	const username = req.body.username;
 	const URL = `${BASE_URL}/collection?username=${username}&own=1`;
 
-	let collection: GameAPIResponse[];
+	let collection: number[];
 
 	const recursiveFetch = async (URL: string) => {
 		const response = await axios.get(URL, {
 			responseType: 'text',
+			timeout: 15000,
 		});
 
 		if (response.status === 202) {
 			setTimeoutAsCallback(() => recursiveFetch(URL));
+		} else if (response.status === 429) {
+			res.send({ message: 'Too many requests' });
 		} else if (response.status === 200) {
 			try {
 				parseString(response.data, (err, result) => {
-					collection = result?.items?.item;
+					collection = result?.items?.item.map((game: CollectionItem) =>
+						parseInt(game.$.objectid)
+					);
 				});
 
-				const parsedCollection = transformCollection(collection);
+				let gameDetails: Game[] = [];
+
+				const ids = collection.join(',');
+
+				const URL = `${BASE_URL}/thing?id=${ids}`;
+
+				const gameResponse = await axios.get(URL, {
+					responseType: 'text',
+					timeout: 15000,
+				});
+
+				let games: BoardGame[];
+
+				parseString(gameResponse.data, (err, result) => {
+					games = result.items.item;
+					games.map((game) => {
+						gameDetails.push(parseGame(game));
+					});
+				});
 
 				const { error } = await supabase
 					.from('boardgames')
-					.upsert(parsedCollection, {
+					.upsert(gameDetails, {
 						ignoreDuplicates: true,
 						onConflict: 'bgg_id',
 					});
 
 				if (error) {
 					console.log(error);
+				} else {
+					console.log('Sent to Supabase');
 				}
 
-				res.send(parsedCollection);
+				res.send(gameDetails);
 			} catch (err) {
-				console.log(err);
-				setTimeoutAsCallback(() => recursiveFetch(URL));
+				res.status(err.response.status).send({ message: err.message });
 			}
 		} else {
-			console.log('error: ', response.status);
+			res.status(response.status).send(response);
 		}
 	};
 

@@ -70,7 +70,9 @@ const setTimeoutAsCallback = (callback: () => any) => {
 };
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-	const username = req.body.username;
+	const username: string = req.body.username;
+	const updated: boolean | null = req.body.updated;
+
 	const URL = `${BASE_URL}/collection?username=${username}&own=1`;
 
 	const recursiveFetch = async (URL: string) => {
@@ -117,7 +119,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 						});
 					});
 
-					const { error } = await supabase
+					const { data, error } = await supabase
 						.from('boardgames')
 						.upsert(gameDetails, {
 							ignoreDuplicates: true,
@@ -128,7 +130,12 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 						console.log(error);
 					}
 
-					res.send(gameDetails);
+					if (updated) {
+						res.status(200).send(data);
+						break;
+					}
+
+					res.status(200).send(gameDetails);
 					break;
 				} catch (err) {
 					if (err.response.status) {

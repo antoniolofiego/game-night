@@ -78,7 +78,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 	const recursiveFetch = async (URL: string) => {
 		const response = await axios.get(URL, {
 			responseType: 'text',
-			timeout: 15000,
+			timeout: 1000,
 		});
 
 		switch (response.status) {
@@ -105,7 +105,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
 					const gameResponse = await axios.get(URL, {
 						responseType: 'text',
-						timeout: 15000,
+						timeout: 1000,
 					});
 
 					let games: BoardGame[];
@@ -138,7 +138,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 					res.status(200).send(gameDetails);
 					break;
 				} catch (err) {
-					if (err.response.status) {
+					if (err.response?.status) {
 						res.status(err.response.status).send({ message: err.message });
 						break;
 					}

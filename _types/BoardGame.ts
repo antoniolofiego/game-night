@@ -1,28 +1,24 @@
 export interface BoardGame {
-	$: GameClass;
+	$: BoardGameClass;
 	thumbnail: string[];
 	image: string[];
 	name: NameElement[];
 	description: string[];
-	yearpublished: PlayerElement[];
-	minplayers: PlayerElement[];
-	maxplayers: PlayerElement[];
+	yearpublished: ValueElement[];
+	minplayers: ValueElement[];
+	maxplayers: ValueElement[];
 	poll: PollElement[];
-	playingtime: TimeElement[];
-	minplaytime: TimeElement[];
-	maxplaytime: TimeElement[];
-	minage: AgeElement[];
+	playingtime: ValueElement[];
+	minplaytime: ValueElement[];
+	maxplaytime: ValueElement[];
+	minage: ValueElement[];
 	link: LinkElement[];
+	statistics: StatisticElement[];
 }
 
-export interface GameClass {
-	type: GameType;
+export interface BoardGameClass {
+	type: string;
 	id: string;
-}
-
-export enum GameType {
-	Boardgame = 'boardgame',
-	Boardgameexpansion = 'boardgameexpansion',
 }
 
 export interface LinkElement {
@@ -30,54 +26,16 @@ export interface LinkElement {
 }
 
 export interface Link {
-	type: DetailType;
+	type: string;
 	id: string;
 	value: string;
-	inbound?: string;
 }
 
-export enum DetailType {
-	Boardgameartist = 'boardgameartist',
-	Boardgamecategory = 'boardgamecategory',
-	Boardgamecompilation = 'boardgamecompilation',
-	Boardgamedesigner = 'boardgamedesigner',
-	Boardgameexpansion = 'boardgameexpansion',
-	Boardgamefamily = 'boardgamefamily',
-	Boardgameimplementation = 'boardgameimplementation',
-	Boardgameintegration = 'boardgameintegration',
-	Boardgamemechanic = 'boardgamemechanic',
-	Boardgamepublisher = 'boardgamepublisher',
+export interface ValueElement {
+	$: Value;
 }
 
-export interface PlayerElement {
-	$: Players;
-}
-
-export interface Players {
-	value: string;
-}
-
-export interface YearElement {
-	$: Year;
-}
-
-export interface Year {
-	value: string;
-}
-
-export interface AgeElement {
-	$: Age;
-}
-
-export interface Age {
-	value: string;
-}
-
-export interface TimeElement {
-	$: Time;
-}
-
-export interface Time {
+export interface Value {
 	value: string;
 }
 
@@ -86,14 +44,9 @@ export interface NameElement {
 }
 
 export interface Name {
-	type: NameType;
+	type: string;
 	sortindex: string;
 	value: string;
-}
-
-export enum NameType {
-	Alternate = 'alternate',
-	Primary = 'primary',
 }
 
 export interface PollElement {
@@ -102,38 +55,68 @@ export interface PollElement {
 }
 
 export interface Poll {
-	name: NameEnum;
-	title: Title;
+	name: string;
+	title: string;
 	totalvotes: string;
 }
 
-export enum NameEnum {
-	LanguageDependence = 'language_dependence',
-	SuggestedNumplayers = 'suggested_numplayers',
-	SuggestedPlayerage = 'suggested_playerage',
-}
-
-export enum Title {
-	LanguageDependence = 'Language Dependence',
-	UserSuggestedNumberOfPlayers = 'User Suggested Number of Players',
-	UserSuggestedPlayerAge = 'User Suggested Player Age',
-}
-
 export interface PollResult {
-	$?: NumPlayerType;
+	$?: Purple;
 	result: ResultResult[];
 }
 
-export interface NumPlayerType {
+export interface Purple {
 	numplayers: string;
 }
 
 export interface ResultResult {
-	$: ResultType;
+	$: Fluffy;
 }
 
-export interface ResultType {
+export interface Fluffy {
 	value: string;
 	numvotes: string;
 	level?: string;
+}
+
+export interface StatisticElement {
+	$: Statistic;
+	ratings: Rating[];
+}
+
+export interface Statistic {
+	page: string;
+}
+
+export interface Rating {
+	usersrated: ValueElement[];
+	average: ValueElement[];
+	bayesaverage: ValueElement[];
+	ranks: RatingRank[];
+	stddev: ValueElement[];
+	median: ValueElement[];
+	owned: ValueElement[];
+	trading: ValueElement[];
+	wanting: ValueElement[];
+	wishing: ValueElement[];
+	numcomments: ValueElement[];
+	numweights: ValueElement[];
+	averageweight: ValueElement[];
+}
+
+export interface RatingRank {
+	rank: RankRank[];
+}
+
+export interface RankRank {
+	$: Rank;
+}
+
+export interface Rank {
+	type: string;
+	id: string;
+	name: string;
+	friendlyname: string;
+	value: string;
+	bayesaverage: string;
 }

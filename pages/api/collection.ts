@@ -15,6 +15,9 @@ type Game = {
 	image: string;
 	description: string;
 	playingTime: number;
+	rating: number;
+	bgg_rank: number | null;
+	weight: number;
 	mechanics: string;
 	categories: string;
 };
@@ -34,6 +37,11 @@ const parseGame = (game: BoardGame): Game | null => {
 		.map((category) => category.$.value)
 		.join('|');
 
+	const allRanks = game.statistics[0].ratings[0].ranks[0].rank;
+	const bgRank = allRanks.filter((rank) => {
+		return rank.$.name === 'boardgame';
+	})[0].$.value;
+
 	try {
 		return {
 			bgg_id: parseInt(game.$.id),
@@ -44,6 +52,11 @@ const parseGame = (game: BoardGame): Game | null => {
 			image: game.image[0],
 			description: game.description[0],
 			playingTime: parseInt(game.playingtime[0]?.$.value),
+			rating: parseFloat(game.statistics[0].ratings[0].average[0].$.value),
+			bgg_rank: parseInt(bgRank),
+			weight: parseFloat(
+				game.statistics[0].ratings[0].averageweight[0].$.value
+			),
 			mechanics: mechanics,
 			categories: categories,
 		};
@@ -55,6 +68,27 @@ const parseGame = (game: BoardGame): Game | null => {
 const setTimeoutAsCallback = (callback: () => any) => {
 	setTimeout(callback, 1000);
 };
+
+// const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+// 	const URL = `${BASE_URL}/thing?id=294514,1744301&stats=1`;
+
+// 	const getData = async () => {
+// 		const response = await axios.get(URL, {
+// 			responseType: 'text',
+// 			timeout: 15000,
+// 		});
+
+// 		parseString(response.data, (err, result) => {
+// 			const games = result.items.item;
+// 			res.send(games);
+// 			games.map((game) => {
+// 				const parsedGame = parseGame(game);
+// 				if (parsedGame) gameDetails.push(parsedGame);
+// 		});
+// 	};
+
+// 	await getData();
+// };
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 	const username = req.body.username;
@@ -86,7 +120,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 							.join(',');
 					});
 
-					const URL = `${BASE_URL}/thing?id=${ids}`;
+					const URL = `${BASE_URL}/thing?id=${ids}&stats=1`;
 
 					const gameResponse = await axios.get(URL, {
 						responseType: 'text',
@@ -127,7 +161,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 				}
 			}
 			default: {
-				res.status(response.status).send(response);
+				res.status(500).send(response);
 			}
 		}
 	};

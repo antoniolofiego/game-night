@@ -92,7 +92,10 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
 				const { error } = await supabase
 					.from('boardgames')
-					.upsert(parsedCollection);
+					.upsert(parsedCollection, {
+						ignoreDuplicates: true,
+						onConflict: 'bgg_id',
+					});
 
 				if (error) {
 					console.log(error);

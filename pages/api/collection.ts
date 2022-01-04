@@ -64,57 +64,64 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 			timeout: 15000,
 		});
 
-		if (response.status === 202) {
-			setTimeoutAsCallback(() => recursiveFetch(URL));
-		} else if (response.status === 429) {
-			res.send({ message: 'Too many requests' });
-		} else if (response.status === 200) {
-			try {
-				parseString(response.data, (err, result) => {
-					collection = result?.items?.item.map((game: CollectionItem) =>
-						parseInt(game.$.objectid)
-					);
-				});
-
-				let gameDetails: Game[] = [];
-
-				const ids = collection.join(',');
-
-				const URL = `${BASE_URL}/thing?id=${ids}`;
-
-				const gameResponse = await axios.get(URL, {
-					responseType: 'text',
-					timeout: 15000,
-				});
-
-				let games: BoardGame[];
-
-				parseString(gameResponse.data, (err, result) => {
-					games = result.items.item;
-					games.map((game) => {
-						gameDetails.push(parseGame(game));
-					});
-				});
-
-				const { error } = await supabase
-					.from('boardgames')
-					.upsert(gameDetails, {
-						ignoreDuplicates: true,
-						onConflict: 'bgg_id',
-					});
-
-				if (error) {
-					console.log(error);
-				} else {
-					console.log('Sent to Supabase');
-				}
-
-				res.send(gameDetails);
-			} catch (err) {
-				res.status(err.response.status).send({ message: err.message });
+		switch (response.status) {
+			case 202: {
+				setTimeoutAsCallback(() => recursiveFetch(URL));
+				break;
 			}
-		} else {
-			res.status(response.status).send(response);
+			case 429: {
+				res.send({ message: 'Too many requests' });
+				break;
+			}
+			case 200: {
+				try {
+					parseString(response.data, (err, result) => {
+						collection = result?.items?.item.map((game: CollectionItem) =>
+							parseInt(game.$.objectid)
+						);
+					});
+
+					const ids = collection.join(',');
+
+					let gameDetails: Game[] = [];
+
+					const URL = `${BASE_URL}/thing?id=${ids}`;
+
+					const gameResponse = await axios.get(URL, {
+						responseType: 'text',
+						timeout: 15000,
+					});
+
+					let games: BoardGame[];
+
+					parseString(gameResponse.data, (err, result) => {
+						games = result.items.item;
+						games.map((game) => {
+							gameDetails.push(parseGame(game));
+						});
+					});
+
+					const { error } = await supabase
+						.from('boardgames')
+						.upsert(gameDetails, {
+							ignoreDuplicates: true,
+							onConflict: 'bgg_id',
+						});
+
+					if (error) {
+						console.log(error);
+					}
+
+					res.send(gameDetails);
+					break;
+				} catch (err) {
+					res.status(err.response.status).send({ message: err.message });
+					break;
+				}
+			}
+			default: {
+				res.status(response.status).send(response);
+			}
 		}
 	};
 

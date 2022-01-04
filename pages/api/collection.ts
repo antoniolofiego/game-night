@@ -69,27 +69,6 @@ const setTimeoutAsCallback = (callback: () => any) => {
 	setTimeout(callback, 1000);
 };
 
-// const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-// 	const URL = `${BASE_URL}/thing?id=294514,1744301&stats=1`;
-
-// 	const getData = async () => {
-// 		const response = await axios.get(URL, {
-// 			responseType: 'text',
-// 			timeout: 15000,
-// 		});
-
-// 		parseString(response.data, (err, result) => {
-// 			const games = result.items.item;
-// 			res.send(games);
-// 			games.map((game) => {
-// 				const parsedGame = parseGame(game);
-// 				if (parsedGame) gameDetails.push(parsedGame);
-// 		});
-// 	};
-
-// 	await getData();
-// };
-
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 	const username = req.body.username;
 	const URL = `${BASE_URL}/collection?username=${username}&own=1`;

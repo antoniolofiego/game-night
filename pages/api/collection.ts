@@ -66,7 +66,7 @@ const parseGame = (game: BoardGame): Game | null => {
 };
 
 const setTimeoutAsCallback = (callback: () => any) => {
-	setTimeout(callback, 1000);
+	setTimeout(callback, 5000);
 };
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
@@ -78,7 +78,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 	const recursiveFetch = async (URL: string) => {
 		const response = await axios.get(URL, {
 			responseType: 'text',
-			timeout: 1000,
+			timeout: 5000,
 		});
 
 		switch (response.status) {
@@ -105,7 +105,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
 					const gameResponse = await axios.get(URL, {
 						responseType: 'text',
-						timeout: 1000,
+						timeout: 5000,
 					});
 
 					let games: BoardGame[];

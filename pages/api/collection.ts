@@ -21,7 +21,7 @@ const parseGame = (game: BGGBoardGame): Game | null => {
 		})
 		.map((category) => category.$.value);
 
-	const sendMechData = async () => {
+	const sendMechanicData = async () => {
 		const { error } = await supabase.from('mechanics').upsert(
 			mechanics.map((mechanic) => {
 				return { name: mechanic };
@@ -67,7 +67,7 @@ const parseGame = (game: BGGBoardGame): Game | null => {
 		}
 	};
 
-	sendMechData();
+	sendMechanicData();
 	sendCategoryData();
 	sendUserCollectionData();
 

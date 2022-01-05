@@ -19,8 +19,8 @@ type Game = {
 	rating: number;
 	bgg_rank: number | null;
 	weight: number;
-	mechanics: string;
-	categories: string;
+	mechanics: string[];
+	categories: string[];
 };
 
 const parseGame = (game: BoardGame): Game | null => {
@@ -28,15 +28,46 @@ const parseGame = (game: BoardGame): Game | null => {
 		.filter((item) => {
 			return item.$.type === 'boardgamemechanic';
 		})
-		.map((mechanic) => mechanic.$.value)
-		.join('|');
+		.map((mechanic) => mechanic.$.value);
 
 	const categories = game.link
 		.filter((link) => {
 			return link.$.type === 'boardgamecategory';
 		})
-		.map((category) => category.$.value)
-		.join('|');
+		.map((category) => category.$.value);
+
+	const sendMechData = async () => {
+		const { error } = await supabase.from('mechanics').upsert(
+			mechanics.map((mechanic) => {
+				return { name: mechanic };
+			}),
+			{
+				ignoreDuplicates: true,
+				onConflict: 'name',
+			}
+		);
+		if (error) {
+			console.log(error);
+		}
+	};
+
+	const sendCategoryData = async () => {
+		const { error } = await supabase.from('categories').upsert(
+			categories.map((category) => {
+				return { name: category };
+			}),
+			{
+				ignoreDuplicates: true,
+				onConflict: 'name',
+			}
+		);
+		if (error) {
+			console.log(error);
+		}
+	};
+
+	sendMechData();
+	sendCategoryData();
 
 	const allRanks = game.statistics[0].ratings[0].ranks[0].rank;
 	const bgRank = allRanks.filter((rank) => {

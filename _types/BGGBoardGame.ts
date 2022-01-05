@@ -1,4 +1,4 @@
-export interface BoardGame {
+export interface BGGBoardGame {
 	$: BoardGameClass;
 	thumbnail: string[];
 	image: string[];

@@ -66,8 +66,25 @@ const parseGame = (game: BoardGame): Game | null => {
 		}
 	};
 
+	// TODO: Replace with user ID from auth session
+	const sendUserCollectionData = async () => {
+		const { error } = await supabase.from('userCollections').upsert(
+			{
+				bgg_id: parseInt(game.$.id),
+				user_id: 'c4814033-4979-4b10-9f0d-cf0b0c6cb4f5',
+			},
+			{
+				ignoreDuplicates: true,
+			}
+		);
+		if (error) {
+			console.log(error);
+		}
+	};
+
 	sendMechData();
 	sendCategoryData();
+	sendUserCollectionData();
 
 	const allRanks = game.statistics[0].ratings[0].ranks[0].rank;
 	const bgRank = allRanks.filter((rank) => {

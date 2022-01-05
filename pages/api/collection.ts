@@ -3,27 +3,12 @@ import axios from 'axios';
 import NextCors from 'nextjs-cors';
 import { parseString } from 'xml2js';
 import { supabase } from '@utils/supabase';
-import { BoardGame } from '_types/BoardGame';
+import { Game } from '_types/Game';
+import { BGGBoardGame } from '_types/BGGBoardGame';
 import { CollectionItem } from '_types/CollectionItem';
 const BASE_URL = 'https://www.boardgamegeek.com/xmlapi2';
 
-type Game = {
-	bgg_id: number;
-	name: string;
-	minPlayers: number;
-	maxPlayers: number;
-	thumbnail: string;
-	image: string;
-	description: string;
-	playingTime: number;
-	rating: number;
-	bgg_rank: number | null;
-	weight: number;
-	mechanics: string[];
-	categories: string[];
-};
-
-const parseGame = (game: BoardGame): Game | null => {
+const parseGame = (game: BGGBoardGame): Game | null => {
 	const mechanics = game.link
 		.filter((item) => {
 			return item.$.type === 'boardgamemechanic';
@@ -71,7 +56,7 @@ const parseGame = (game: BoardGame): Game | null => {
 		const { error } = await supabase.from('userCollections').upsert(
 			{
 				bgg_id: parseInt(game.$.id),
-				user_id: 'c4814033-4979-4b10-9f0d-cf0b0c6cb4f5',
+				user_id: '13dd9166-0347-4962-b75c-7399559cea0b',
 			},
 			{
 				ignoreDuplicates: true,
@@ -163,7 +148,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 						timeout: 10000,
 					});
 
-					let games: BoardGame[];
+					let games: BGGBoardGame[];
 					let gameDetails: Game[] = [];
 
 					parseString(gameResponse.data, (err, result) => {

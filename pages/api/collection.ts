@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import axios from 'axios';
+import NextCors from 'nextjs-cors';
 import { parseString } from 'xml2js';
 import { supabase } from '@utils/supabase';
 import { BoardGame } from '_types/BoardGame';
@@ -70,6 +71,12 @@ const setTimeoutAsCallback = (callback: () => any) => {
 };
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+	await NextCors(req, res, {
+		methods: ['GET'],
+		origin: '*',
+		optionsSuccessStatus: 200,
+	});
+
 	const username: string = req.body.username;
 	const updated: boolean | null = req.body.updated;
 

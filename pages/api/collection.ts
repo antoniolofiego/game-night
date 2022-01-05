@@ -120,7 +120,7 @@ const setTimeoutAsCallback = (callback: () => any) => {
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 	await NextCors(req, res, {
-		methods: ['GET'],
+		methods: ['POST'],
 		origin: '*',
 		optionsSuccessStatus: 200,
 	});
@@ -133,7 +133,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 	const recursiveFetch = async (URL: string) => {
 		const response = await axios.get(URL, {
 			responseType: 'text',
-			timeout: 5000,
+			timeout: 15000,
 		});
 
 		switch (response.status) {
@@ -160,7 +160,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
 					const gameResponse = await axios.get(URL, {
 						responseType: 'text',
-						timeout: 5000,
+						timeout: 10000,
 					});
 
 					let games: BoardGame[];

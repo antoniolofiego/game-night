@@ -10,6 +10,10 @@
 		"test": "jest"
 	},
 	"dependencies": {
+		"@sls-next/aws-cloudfront": "^3.7.0-alpha.0",
+		"@sls-next/aws-lambda": "^3.7.0-alpha.0",
+		"@sls-next/aws-sqs": "^3.7.0-alpha.0",
+		"@sls-next/domain": "^3.7.0-alpha.0",
 		"@sls-next/serverless-component": "^3.6.0",
 		"@supabase/supabase-js": "^1.29.1",
 		"axios": "^0.24.0",

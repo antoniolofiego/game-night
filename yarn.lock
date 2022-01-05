@@ -1712,6 +1712,15 @@
     aws-sdk "2.1014.0"
     ramda "0.27.1"
 
+"@sls-next/aws-cloudfront@^3.7.0-alpha.0":
+  version "3.7.0-alpha.0"
+  resolved "https://registry.yarnpkg.com/@sls-next/aws-cloudfront/-/aws-cloudfront-3.7.0-alpha.0.tgz#b4df57128d82b57ad9b7eb889ca6c27ecfd1ecd4"
+  integrity sha512-Xw2xlgtgCQWIcYTAyv3+k2Nat7ElzKtu5kGLN95oUWv2maHtkrlrNLmHRi5ZPbLnynj99eIx3RZe3XRuWfA4cA==
+  dependencies:
+    "@serverless/core" "1.1.2"
+    aws-sdk "2.1033.0"
+    ramda "0.27.1"
+
 "@sls-next/aws-common@3.6.0":
   version "3.6.0"
   resolved "https://registry.npmjs.org/@sls-next/aws-common/-/aws-common-3.6.0.tgz"
@@ -1732,6 +1741,22 @@
     "@serverless/core" "1.1.2"
     archiver "5.3.0"
     aws-sdk "2.1014.0"
+    fs-extra "9.1.0"
+    globby "11.0.4"
+    lodash "4.17.21"
+    ramda "0.27.1"
+
+"@sls-next/aws-lambda@^3.7.0-alpha.0":
+  version "3.7.0-alpha.0"
+  resolved "https://registry.yarnpkg.com/@sls-next/aws-lambda/-/aws-lambda-3.7.0-alpha.0.tgz#28f03497d56efeacc7eb454d384fc14f8cec5e61"
+  integrity sha512-rBWt1/tXBfD8Nl7b0h66RHuStwzUORkRNDbK8EO6DcFG7aXQzaa3wiHKozE25SufXQMNuSfWAtan+dGCcMUNwA==
+  dependencies:
+    "@serverless/aws-iam-role" "1.0.0"
+    "@serverless/aws-lambda-layer" "1.0.0"
+    "@serverless/aws-s3" "4.2.0"
+    "@serverless/core" "1.1.2"
+    archiver "5.3.0"
+    aws-sdk "2.1033.0"
     fs-extra "9.1.0"
     globby "11.0.4"
     lodash "4.17.21"
@@ -1759,6 +1784,16 @@
   dependencies:
     "@serverless/core" "1.1.2"
     aws-sdk "2.1014.0"
+    fs-extra "9.1.0"
+    lodash "4.17.21"
+
+"@sls-next/aws-sqs@^3.7.0-alpha.0":
+  version "3.7.0-alpha.0"
+  resolved "https://registry.yarnpkg.com/@sls-next/aws-sqs/-/aws-sqs-3.7.0-alpha.0.tgz#ede14d6563c0be2afe63a813eebc2d2482b2deea"
+  integrity sha512-3kKSSgsnsAu4+iRuKLTPVM5lZrLTQv0lIY8MZEE6mPYEaWXIYO2fHDU05h3cLOnjbLcDbY54vK8T4RUZ7TLQDA==
+  dependencies:
+    "@serverless/core" "1.1.2"
+    aws-sdk "2.1033.0"
     fs-extra "9.1.0"
     lodash "4.17.21"
 
@@ -1798,6 +1833,14 @@
   dependencies:
     "@serverless/core" "1.1.2"
     aws-sdk "2.1017.0"
+
+"@sls-next/domain@^3.7.0-alpha.0":
+  version "3.7.0-alpha.0"
+  resolved "https://registry.yarnpkg.com/@sls-next/domain/-/domain-3.7.0-alpha.0.tgz#2c18e3b7f0d88bc3553eb99400901cd13915c847"
+  integrity sha512-0iRVOPp3KyN4ZV6IbVMkF+15PkURYQpOqIC8NEnCp0sooFdpf3yYoHA4dlydyBk7rk3V0K02gLBc5nIcR4A6HQ==
+  dependencies:
+    "@serverless/core" "1.1.2"
+    aws-sdk "2.1033.0"
 
 "@sls-next/lambda-at-edge@3.6.0":
   version "3.6.0"
@@ -2788,6 +2831,21 @@ aws-sdk@2.1017.0:
   version "2.1017.0"
   resolved "https://registry.npmjs.org/aws-sdk/-/aws-sdk-2.1017.0.tgz"
   integrity sha512-oS3KmMhzxK0HEy1AfHV8EjfvNlm8PpLSswbh+SF6MBP1Hy8vyQ/1dFhhWpEogpyIzV6MUdKnq++bTijXGIRqdA==
+  dependencies:
+    buffer "4.9.2"
+    events "1.1.1"
+    ieee754 "1.1.13"
+    jmespath "0.15.0"
+    querystring "0.2.0"
+    sax "1.2.1"
+    url "0.10.3"
+    uuid "3.3.2"
+    xml2js "0.4.19"
+
+aws-sdk@2.1033.0:
+  version "2.1033.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.1033.0.tgz#8bd0084142b15cc2ca427483c36c86b27abc046b"
+  integrity sha512-cgcjiuR82bhfBWTffqt6e9+Cn/UgeC6QPQTrlJy3GxwPxChthyrt/h5pekj2l4PLFvETsG10Y6CqQysJEMsncw==
   dependencies:
     buffer "4.9.2"
     events "1.1.1"

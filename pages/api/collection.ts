@@ -52,6 +52,7 @@ const parseGame = (game: BGGBoardGame): Game | null => {
 	};
 
 	// TODO: Replace with user ID from auth session
+	// TODO: Handle updated collection data and refresh on subsequent calls
 	const sendUserCollectionData = async () => {
 		const { error } = await supabase.from('userCollections').upsert(
 			{

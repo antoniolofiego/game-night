@@ -1,122 +1,122 @@
 export interface BGGBoardGame {
-	$: BoardGameClass;
-	thumbnail: string[];
-	image: string[];
-	name: NameElement[];
-	description: string[];
-	yearpublished: ValueElement[];
-	minplayers: ValueElement[];
-	maxplayers: ValueElement[];
-	poll: PollElement[];
-	playingtime: ValueElement[];
-	minplaytime: ValueElement[];
-	maxplaytime: ValueElement[];
-	minage: ValueElement[];
-	link: LinkElement[];
-	statistics: StatisticElement[];
+  $: BoardGameClass;
+  thumbnail: string[];
+  image: string[];
+  name: NameElement[];
+  description: string[];
+  yearpublished: ValueElement[];
+  minplayers: ValueElement[];
+  maxplayers: ValueElement[];
+  poll: PollElement[];
+  playingtime: ValueElement[];
+  minplaytime: ValueElement[];
+  maxplaytime: ValueElement[];
+  minage: ValueElement[];
+  link: LinkElement[];
+  statistics: StatisticElement[];
 }
 
 export interface BoardGameClass {
-	type: string;
-	id: string;
+  type: string;
+  id: string;
 }
 
 export interface LinkElement {
-	$: Link;
+  $: Link;
 }
 
 export interface Link {
-	type: string;
-	id: string;
-	value: string;
+  type: string;
+  id: string;
+  value: string;
 }
 
 export interface ValueElement {
-	$: Value;
+  $: Value;
 }
 
 export interface Value {
-	value: string;
+  value: string;
 }
 
 export interface NameElement {
-	$: Name;
+  $: Name;
 }
 
 export interface Name {
-	type: string;
-	sortindex: string;
-	value: string;
+  type: string;
+  sortindex: string;
+  value: string;
 }
 
 export interface PollElement {
-	$: Poll;
-	results: PollResult[];
+  $: Poll;
+  results: PollResult[];
 }
 
 export interface Poll {
-	name: string;
-	title: string;
-	totalvotes: string;
+  name: string;
+  title: string;
+  totalvotes: string;
 }
 
 export interface PollResult {
-	$?: Purple;
-	result: ResultResult[];
+  $?: Purple;
+  result: ResultResult[];
 }
 
 export interface Purple {
-	numplayers: string;
+  numplayers: string;
 }
 
 export interface ResultResult {
-	$: Fluffy;
+  $: Fluffy;
 }
 
 export interface Fluffy {
-	value: string;
-	numvotes: string;
-	level?: string;
+  value: string;
+  numvotes: string;
+  level?: string;
 }
 
 export interface StatisticElement {
-	$: Statistic;
-	ratings: Rating[];
+  $: Statistic;
+  ratings: Rating[];
 }
 
 export interface Statistic {
-	page: string;
+  page: string;
 }
 
 export interface Rating {
-	usersrated: ValueElement[];
-	average: ValueElement[];
-	bayesaverage: ValueElement[];
-	ranks: RatingRank[];
-	stddev: ValueElement[];
-	median: ValueElement[];
-	owned: ValueElement[];
-	trading: ValueElement[];
-	wanting: ValueElement[];
-	wishing: ValueElement[];
-	numcomments: ValueElement[];
-	numweights: ValueElement[];
-	averageweight: ValueElement[];
+  usersrated: ValueElement[];
+  average: ValueElement[];
+  bayesaverage: ValueElement[];
+  ranks: RatingRank[];
+  stddev: ValueElement[];
+  median: ValueElement[];
+  owned: ValueElement[];
+  trading: ValueElement[];
+  wanting: ValueElement[];
+  wishing: ValueElement[];
+  numcomments: ValueElement[];
+  numweights: ValueElement[];
+  averageweight: ValueElement[];
 }
 
 export interface RatingRank {
-	rank: RankRank[];
+  rank: RankRank[];
 }
 
 export interface RankRank {
-	$: Rank;
+  $: Rank;
 }
 
 export interface Rank {
-	type: string;
-	id: string;
-	name: string;
-	friendlyname: string;
-	value: string;
-	bayesaverage: string;
+  type: string;
+  id: string;
+  name: string;
+  friendlyname: string;
+  value: string;
+  bayesaverage: string;
 }

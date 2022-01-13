@@ -1,2 +1,0 @@
-nextapp:
-  component: './node_modules/@sls-next/serverless-component'

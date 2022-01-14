@@ -5,7 +5,7 @@ import { parseString } from 'xml2js';
 import { supabase } from '@utils/supabase';
 import { Game } from '_types/Game';
 import { BGGBoardGame } from '_types/BGGBoardGame';
-import { CollectionItem } from '_types/CollectionItem';
+
 const BASE_URL = 'https://www.boardgamegeek.com/xmlapi2';
 
 const parseGame = (game: BGGBoardGame): Game | null => {
@@ -51,26 +51,8 @@ const parseGame = (game: BGGBoardGame): Game | null => {
     }
   };
 
-  // TODO: Replace with user ID from auth session
-  // TODO: Handle updated collection data and refresh on subsequent calls
-  const sendUserCollectionData = async () => {
-    const { error } = await supabase.from('userCollections').upsert(
-      {
-        bgg_id: parseInt(game.$.id),
-        user_id: '13dd9166-0347-4962-b75c-7399559cea0b',
-      },
-      {
-        ignoreDuplicates: true,
-      }
-    );
-    if (error) {
-      console.log(error);
-    }
-  };
-
   sendMechanicData();
   sendCategoryData();
-  sendUserCollectionData();
 
   const allRanks = game.statistics[0].ratings[0].ranks[0].rank;
   const bgRank = allRanks.filter((rank) => {
@@ -100,10 +82,6 @@ const parseGame = (game: BGGBoardGame): Game | null => {
   }
 };
 
-const setTimeoutAsCallback = (callback: () => any) => {
-  setTimeout(callback, 5000);
-};
-
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   await NextCors(req, res, {
     methods: ['POST'],
@@ -111,89 +89,48 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     optionsSuccessStatus: 200,
   });
 
-  const username: string = req.body.username;
-  const updated: boolean | null = req.body.updated;
+  const ids: string = req.query.id as string;
+  const updated: string = req.query.updated as string;
 
-  const URL = `${BASE_URL}/collection?username=${username}&own=1`;
+  const fetchGameData = async () => {
+    const URL = `${BASE_URL}/thing?id=${ids}&stats=1`;
 
-  const recursiveFetch = async (URL: string) => {
-    const response = await axios.get(URL, {
+    const gameResponse = await axios.get(URL, {
       responseType: 'text',
-      timeout: 15000,
+      timeout: 10000,
     });
 
-    switch (response.status) {
-      case 202: {
-        setTimeoutAsCallback(() => recursiveFetch(URL));
-        break;
-      }
-      case 429: {
-        res.send({ message: 'Too many requests' });
-        break;
-      }
-      case 200: {
-        try {
-          let ids: string | undefined;
+    let games: BGGBoardGame[];
+    let gameDetails: Game[] = [];
 
-          parseString(response.data, (err, result) => {
-            const collection: CollectionItem[] = result.items.item;
-            ids = collection
-              .map((game: CollectionItem) => parseInt(game.$.objectid))
-              .join(',');
-          });
+    parseString(gameResponse.data, (err, result) => {
+      games = result.items.item;
+      games.map((game) => {
+        const parsedGame = parseGame(game);
+        if (parsedGame) gameDetails.push(parsedGame);
+      });
+    });
 
-          const URL = `${BASE_URL}/thing?id=${ids}&stats=1`;
+    const { data, error } = await supabase
+      .from('boardgames')
+      .upsert(gameDetails, {
+        ignoreDuplicates: true,
+        onConflict: 'bgg_id',
+      });
 
-          const gameResponse = await axios.get(URL, {
-            responseType: 'text',
-            timeout: 10000,
-          });
-
-          let games: BGGBoardGame[];
-          let gameDetails: Game[] = [];
-
-          parseString(gameResponse.data, (err, result) => {
-            games = result.items.item;
-            games.map((game) => {
-              const parsedGame = parseGame(game);
-              if (parsedGame) gameDetails.push(parsedGame);
-            });
-          });
-
-          const { data, error } = await supabase
-            .from('boardgames')
-            .upsert(gameDetails, {
-              ignoreDuplicates: true,
-              onConflict: 'bgg_id',
-            });
-
-          if (error) {
-            console.log(error);
-          }
-
-          if (updated) {
-            res.status(200).send(data);
-            break;
-          }
-
-          res.status(200).send(gameDetails);
-          break;
-        } catch (err) {
-          if (err.response?.status) {
-            res.status(err.response.status).send({ message: err.message });
-            break;
-          }
-          res.status(500).send({ message: err.message });
-          break;
-        }
-      }
-      default: {
-        res.status(500).send(response);
-      }
+    if (error) {
+      console.log(error);
     }
+
+    if (updated === 'true') {
+      res.status(200).send(data);
+      return;
+    }
+
+    res.status(200).send(gameDetails);
   };
 
-  await recursiveFetch(URL);
+  await fetchGameData();
 };
 
 export default handler;

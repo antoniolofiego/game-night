@@ -62,22 +62,24 @@ const parseGame = (game: BGGBoardGame): Game | null => {
   try {
     return {
       bgg_id: parseInt(game.$.id),
-      name: game.name[0].$.value,
-      minPlayers: parseInt(game.minplayers[0]?.$.value),
-      maxPlayers: parseInt(game.maxplayers[0]?.$.value),
-      thumbnail: game.thumbnail[0],
-      image: game.image[0],
-      description: game.description[0],
-      playingTime: parseInt(game.playingtime[0]?.$.value),
-      rating: parseFloat(game.statistics[0].ratings[0].average[0].$.value),
-      bgg_rank: parseInt(bgRank),
-      weight: parseFloat(
-        game.statistics[0].ratings[0].averageweight[0].$.value
-      ),
-      mechanics: mechanics,
-      categories: categories,
+      name: game.name[0]?.$.value,
+      minPlayers: parseInt(game.minplayers[0]?.$.value) || null,
+      maxPlayers: parseInt(game.maxplayers[0]?.$.value) || null,
+      thumbnail: game.thumbnail[0] || null,
+      image: game.image[0] || null,
+      description: game.description[0] || null,
+      playingTime: parseInt(game.playingtime[0]?.$.value) || null,
+      rating:
+        parseFloat(game.statistics[0].ratings[0].average[0].$.value) || null,
+      bgg_rank: parseInt(bgRank) || null,
+      weight:
+        parseFloat(game.statistics[0].ratings[0].averageweight[0].$.value) ||
+        null,
+      mechanics: mechanics || null,
+      categories: categories || null,
     };
   } catch (err) {
+    console.log(`${game.$.id}: ${err}`);
     return null;
   }
 };

@@ -4482,6 +4482,11 @@ use-subscription@1.5.1:
   dependencies:
     object-assign "^4.1.1"
 
+usehooks-ts@^2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/usehooks-ts/-/usehooks-ts-2.2.1.tgz#9bb9af81d4680cf9cdb9234331a37e4be39d1183"
+  integrity sha512-n6Rat52iF+Tz9CFU2IIuaFsm9uCXX4dU565lKaAKMEXLLGTg9qYwzDSpXkCPRnx9lTdkm8M+W+YJ36Lb13zjEA==
+
 utf-8-validate@^5.0.2:
   version "5.0.8"
   resolved "https://registry.yarnpkg.com/utf-8-validate/-/utf-8-validate-5.0.8.tgz#4a735a61661dbb1c59a0868c397d2fe263f14e58"

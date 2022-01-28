@@ -9,7 +9,7 @@ export type Game = {
   description: string | null;
   playingTime: number | null;
   rating: number | null;
-  bgg_rank: number | null;
+  rank: number | null;
   weight: number | null;
   mechanics: string[] | null;
   categories: string[] | null;

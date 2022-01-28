@@ -71,7 +71,7 @@ const parseGame = (game: BGGBoardGame): Game | null => {
       playingTime: parseInt(game.playingtime[0]?.$.value) || null,
       rating:
         parseFloat(game.statistics[0].ratings[0].average[0].$.value) || null,
-      bgg_rank: parseInt(bgRank) || null,
+      rank: parseInt(bgRank) || null,
       weight:
         parseFloat(game.statistics[0].ratings[0].averageweight[0].$.value) ||
         null,

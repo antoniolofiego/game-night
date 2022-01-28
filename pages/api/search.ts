@@ -1,6 +1,7 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
 import axios from 'axios';
 import { parseString } from 'xml2js';
+
+import type { NextApiRequest, NextApiResponse } from 'next';
 
 const BASE_URL = 'https://www.boardgamegeek.com/xmlapi2';
 

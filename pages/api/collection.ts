@@ -1,10 +1,11 @@
-import { NextApiRequest, NextApiResponse } from 'next';
+import { supabase } from '@utils/supabase';
+
+import axios from 'axios';
 import { parseString } from 'xml2js';
 import NextCors from 'nextjs-cors';
-import axios from 'axios';
-import { supabase } from '@utils/supabase';
-import { CollectionItem } from '_types/CollectionItem';
-import { Game } from '_types/Game';
+
+import type { NextApiRequest, NextApiResponse } from 'next';
+import type { Game, CollectionItem } from '_types';
 
 const BASE_URL = 'https://www.boardgamegeek.com/xmlapi2';
 

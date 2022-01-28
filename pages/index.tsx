@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-
 import Head from 'next/head';
-import { User } from '@supabase/supabase-js';
-import { useUser } from '@context/user';
-import { Game } from '_types/Game';
 import axios from 'axios';
+
+import { useUser } from '@context/user';
+
+import type { User } from '@supabase/supabase-js';
+import type { Game } from '_types';
 
 type PropType = {
   user: User;

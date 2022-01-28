@@ -19,7 +19,7 @@
       "@styles/*": ["styles/*"],
       "@pages/*": ["pages/*"],
       "@hooks/*": ["hooks/*"],
-      "@context": ["context/*"],
+      "@context/*": ["context/*"],
       "@utils/*": ["utils/*"]
     }
   },

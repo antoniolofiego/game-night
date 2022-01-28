@@ -1,13 +1,55 @@
+import { useState, useEffect } from 'react';
+
 import Head from 'next/head';
-import { supabase } from '@utils/supabase';
+import { User } from '@supabase/supabase-js';
+import { useUser } from '@context/user';
 import { Game } from '_types/Game';
+import axios from 'axios';
 
 type PropType = {
-  collection: Game[];
+  user: User;
 };
 
-const Home: React.FC<PropType> = ({ collection }) => {
-  // console.log(collection);
+const Home: React.FC<PropType> = () => {
+  const [collection, setCollection] = useState<Game[] | []>([]);
+  const [dataIsLoading, setDataIsLoading] = useState<boolean>(false);
+
+  const { user, login, logout, isLoading } = useUser();
+
+  const refreshCollection = async () => {
+    await axios.post('/api/collection?username=cloudalf');
+  };
+
+  useEffect(() => {
+    const loadData = async () => {
+      setDataIsLoading(true);
+      const collection = await axios
+        .get(`/api/collection?user_id=${user?.id}`)
+        .then((res) => res.data);
+
+      setCollection(collection);
+      setDataIsLoading(false);
+    };
+
+    if (!isLoading && user) {
+      loadData();
+    }
+  }, [isLoading, user]);
+
+  const collectionComponent = collection.map((game, i) => {
+    return (
+      <div key={game.id}>
+        <p>
+          {game.name} - {game.weight}
+        </p>
+      </div>
+    );
+  });
+
+  const loadingState = <p>Loading...</p>;
+
+  const noGames = <p>No games to show</p>;
+
   return (
     <>
       <Head>
@@ -21,34 +63,23 @@ const Home: React.FC<PropType> = ({ collection }) => {
 
       <main>
         <h1>GameNight</h1>
-        {collection.map((game, i) => {
-          return (
-            <div key={game.id}>
-              <p>{game.name}</p>
-              <p>{game.weight}</p>
-            </div>
-          );
-        })}
+        <button onClick={refreshCollection}>Refresh collection</button>
+        <button onClick={login}>Login</button>
+        <button
+          onClick={() => {
+            setCollection(() => []);
+            logout();
+          }}
+        >
+          Logout
+        </button>
+        <p>{user && user.id}</p>
+        <p>{user && user.email}</p>
+        {dataIsLoading && loadingState}
+        {collection.length === 0 ? noGames : collectionComponent}
       </main>
     </>
   );
 };
 
 export default Home;
-
-export const getServerSideProps = async () => {
-  const { data: userCollection, error } = await supabase
-    .from('userCollections')
-    .select(`boardgames(*)`)
-    .eq('user_id', 'c4814033-4979-4b10-9f0d-cf0b0c6cb4f5');
-
-  console.log(userCollection?.length);
-
-  const parsedCollection = userCollection?.map((game) => game.boardgames);
-
-  return {
-    props: {
-      collection: parsedCollection,
-    },
-  };
-};

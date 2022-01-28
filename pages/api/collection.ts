@@ -4,6 +4,7 @@ import NextCors from 'nextjs-cors';
 import axios from 'axios';
 import { supabase } from '@utils/supabase';
 import { CollectionItem } from '_types/CollectionItem';
+import { Game } from '_types/Game';
 
 const BASE_URL = 'https://www.boardgamegeek.com/xmlapi2';
 
@@ -19,11 +20,32 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   });
 
   const username: string = req.query.username as string;
+  const user_id: string = req.query.user_id as string;
   const method: string = req.method as string;
 
-  // TODO: Implement getCollection function
   const getCollection = async () => {
-    res.status(501).send('Functionality not yet implemented');
+    if (username) {
+      res.status(501).send('Not yet implemented');
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('userCollections')
+        .select('boardgames(*)')
+        .eq('user_id', user_id);
+
+      const parsedCollection: Game[] = data?.map(
+        (game) => game.boardgames
+      ) as Game[];
+
+      if (error) {
+        res.status(500).send(error);
+      }
+
+      res.status(200).send(parsedCollection);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   const updateCollection = async () => {
@@ -54,46 +76,54 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
               }[]
             | undefined;
 
-          parseString(response.data, (err, result) => {
-            const collection: CollectionItem[] = result.items.item;
-            collectionResults = collection.map((game: CollectionItem) => {
-              return {
-                bgg_id: parseInt(game.$.objectid),
-                user_id: '13dd9166-0347-4962-b75c-7399559cea0b',
-              };
+          const { user } = await supabase.auth.api.getUserByCookie(req);
+
+          if (!user) {
+            res.status(403);
+          }
+
+          if (user) {
+            parseString(response.data, (err, result) => {
+              const collection: CollectionItem[] = result.items.item;
+              collectionResults = collection.map((game: CollectionItem) => {
+                return {
+                  bgg_id: parseInt(game.$.objectid),
+                  user_id: user.id,
+                };
+              });
             });
-          });
 
-          ids = collectionResults?.map((item) => item.bgg_id).join(',');
+            ids = collectionResults?.map((item) => item.bgg_id).join(',');
 
-          try {
-            await axios.post(
-              `http://localhost:3000/api/update-games?id=${ids}`
-            );
-          } catch (err) {
-            if (err.response?.status) {
-              res.status(err.response.status).send({ message: err.message });
+            try {
+              await axios.post(
+                `http://localhost:3000/api/update-game?id=${ids}`
+              );
+            } catch (err) {
+              if (err.response?.status) {
+                res.status(err.response.status).send({ message: err.message });
+                break;
+              }
+
+              res.status(500).send(err.message);
               break;
             }
 
-            res.status(500).send(err.message);
-            break;
-          }
-
-          if (collectionResults) {
-            const { data, error } = await supabase
-              .from('userCollections')
-              .upsert(collectionResults, {
-                ignoreDuplicates: true,
-              });
-            if (error) {
-              console.log(error);
+            if (collectionResults) {
+              const { data, error } = await supabase
+                .from('userCollections')
+                .upsert(collectionResults, {
+                  ignoreDuplicates: true,
+                });
+              if (error) {
+                console.log(error);
+              }
+              res.status(200).send(data);
+              break;
             }
-            res.status(200).send(data);
-            break;
-          }
 
-          res.status(500);
+            res.status(500);
+          }
           break;
         } catch (err) {
           if (err.response?.status) {

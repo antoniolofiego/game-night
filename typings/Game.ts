@@ -13,4 +13,5 @@ export type Game = {
   weight: number | null;
   mechanics: string[] | null;
   categories: string[] | null;
+  shelfOfShame?: boolean;
 };

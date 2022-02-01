@@ -5,7 +5,7 @@ import { parseString } from 'xml2js';
 import NextCors from 'nextjs-cors';
 
 import type { NextApiRequest, NextApiResponse } from 'next';
-import type { Game, CollectionItem } from '_types';
+import type { Game, CollectionItem } from '@typings';
 
 const BASE_URL = 'https://www.boardgamegeek.com/xmlapi2';
 

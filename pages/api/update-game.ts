@@ -3,7 +3,7 @@ import axios from 'axios';
 import NextCors from 'nextjs-cors';
 import { parseString } from 'xml2js';
 import { supabase } from '@utils/supabase';
-import { Game, BGGBoardGame } from '_types';
+import { Game, BGGBoardGame } from '@typings';
 
 const BASE_URL = 'https://www.boardgamegeek.com/xmlapi2';
 

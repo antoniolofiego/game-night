@@ -1,85 +1,39 @@
 import { useState, useEffect } from 'react';
-import Head from 'next/head';
+import { useUser } from '@context/user';
 import axios from 'axios';
 
-import { useUser } from '@context/user';
+import type { Game } from '@typings';
 
-import type { User } from '@supabase/supabase-js';
-import type { Game } from '_types';
-
-type PropType = {
-  user: User;
-};
-
-const Home: React.FC<PropType> = () => {
-  const [collection, setCollection] = useState<Game[] | []>([]);
-  const [dataIsLoading, setDataIsLoading] = useState<boolean>(false);
-
-  const { user, login, logout, isLoading } = useUser();
-
-  const refreshCollection = async () => {
-    await axios.post('/api/collection?username=cloudalf');
-  };
+const Home = () => {
+  const { user, isLoading } = useUser();
+  const [collection, setCollection] = useState<Game[]>([]);
 
   useEffect(() => {
-    const loadData = async () => {
-      setDataIsLoading(true);
-      const collection = await axios
+    const fetchData = async () => {
+      const data: Game[] = await axios
         .get(`/api/collection?user_id=${user?.id}`)
         .then((res) => res.data);
-
-      setCollection(collection);
-      setDataIsLoading(false);
+      setCollection(() => data);
     };
 
-    if (!isLoading && user) {
-      loadData();
-    }
-  }, [isLoading, user]);
-
-  const collectionComponent = collection.map((game, i) => {
-    return (
-      <div key={game.id}>
-        <p>
-          {game.name} - {game.weight}
-        </p>
-      </div>
-    );
-  });
-
-  const loadingState = <p>Loading...</p>;
-
-  const noGames = <p>No games to show</p>;
+    fetchData();
+  }, [user]);
 
   return (
-    <>
-      <Head>
-        <title>GameNight</title>
-        <meta
-          name='description'
-          content='The easy way to organize your board game nights'
-        />
-        <link rel='icon' href='/favicon.ico' />
-      </Head>
-
-      <main>
-        <h1>GameNight</h1>
-        <button onClick={refreshCollection}>Refresh collection</button>
-        <button onClick={login}>Login</button>
-        <button
-          onClick={() => {
-            setCollection(() => []);
-            logout();
-          }}
-        >
-          Logout
-        </button>
-        <p>{user && user.id}</p>
-        <p>{user && user.email}</p>
-        {dataIsLoading && loadingState}
-        {collection.length === 0 ? noGames : collectionComponent}
-      </main>
-    </>
+    <div>
+      <h1>Home component</h1>
+      {isLoading ? (
+        <div>Loading...</div>
+      ) : (
+        <>
+          <h1>{user?.bggUsername}</h1>
+          <h2>{user?.email}</h2>
+        </>
+      )}
+      {collection.map((collection) => {
+        return <p key={collection.bgg_id}>{collection.name}</p>;
+      })}
+    </div>
   );
 };
 

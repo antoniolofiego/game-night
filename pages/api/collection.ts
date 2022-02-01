@@ -5,7 +5,7 @@ import { parseString } from 'xml2js';
 import NextCors from 'nextjs-cors';
 
 import type { NextApiRequest, NextApiResponse } from 'next';
-import type { Game, CollectionItem } from '@typings';
+import type { Game, CollectionItem, SupabaseCollectionItem } from '@typings';
 
 const BASE_URL = 'https://www.boardgamegeek.com/xmlapi2';
 
@@ -32,11 +32,17 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     try {
       const { data, error } = await supabase
         .from('userCollections')
-        .select('boardgames(*)')
+        .select('boardgames(*), shelfOfShame, playCount')
         .eq('user_id', user_id);
 
       const parsedCollection: Game[] = data?.map(
-        (game) => game.boardgames
+        (game: SupabaseCollectionItem) => {
+          return {
+            ...game.boardgames,
+            shelfOfShame: game.shelfOfShame,
+            playCount: game.playCount,
+          };
+        }
       ) as Game[];
 
       if (error) {

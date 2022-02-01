@@ -14,4 +14,5 @@ export type Game = {
   mechanics: string[] | null;
   categories: string[] | null;
   shelfOfShame?: boolean;
+  playCount?: number;
 };

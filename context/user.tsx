@@ -4,9 +4,13 @@ import { User } from '@supabase/supabase-js';
 import { useRouter } from 'next/router';
 import axios from 'axios';
 
+interface EnhancedUser extends User {
+  bggUsername?: string;
+}
+
 type ContextType = {
-  user: User | null;
-  login: () => void;
+  user: EnhancedUser | null;
+  login: (email: string) => void;
   logout: () => void;
   isLoading: boolean | null;
 };
@@ -72,9 +76,9 @@ const UserProvider: React.FC = ({ children }) => {
     }
   }, [user]);
 
-  const login = async () => {
+  const login = async (email: string) => {
     await supabase.auth.signIn({
-      provider: 'discord',
+      email: email,
     });
   };
 

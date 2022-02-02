@@ -4,9 +4,10 @@ import { useUser } from '@context/user';
 
 type EmailProps = {
   next: () => void;
+  handleEmail: (email: string) => void;
 };
 
-const Email: React.FC<EmailProps> = ({ next }) => {
+const Email: React.FC<EmailProps> = ({ next, handleEmail }) => {
   const [email, setEmail] = useState('');
 
   const { login } = useUser();
@@ -15,6 +16,7 @@ const Email: React.FC<EmailProps> = ({ next }) => {
     e.preventDefault();
     try {
       login(email);
+      handleEmail(email);
       next();
     } catch (err) {
       console.log(err);
@@ -22,22 +24,18 @@ const Email: React.FC<EmailProps> = ({ next }) => {
   };
 
   return (
-    <div className='flex w-48 mx-auto my-12'>
-      <form
-        onSubmit={(e) => handleSubmit(e)}
-        className='flex flex-col space-y-5'
-      >
-        <label>Email</label>
-        <input
-          type='email'
-          name='email'
-          value={email}
-          onChange={(e) => setEmail(e.target.value.trim())}
-          placeholder='your@email.com'
-        />
-        <button type='submit'>Next</button>
-      </form>
-    </div>
+    <form onSubmit={(e) => handleSubmit(e)} className='flex flex-col space-y-5'>
+      <label>Email</label>
+      <input
+        type='email'
+        name='email'
+        value={email}
+        onChange={(e) => setEmail(e.target.value.trim())}
+        placeholder='your@email.com'
+        className='dark:bg-slate-900'
+      />
+      <button type='submit'>Next</button>
+    </form>
   );
 };
 

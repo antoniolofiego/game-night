@@ -9,7 +9,9 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <ThemeProvider attribute='class'>
       <UserProvider>
-        <Component {...pageProps} />
+        <div className='dark:bg-gradient-to-br dark:from-slate-900 dark:via-slate-800 dark:to-gray-800'>
+          <Component {...pageProps} />
+        </div>
       </UserProvider>
     </ThemeProvider>
   );

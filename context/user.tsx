@@ -4,7 +4,7 @@ import { User } from '@supabase/supabase-js';
 import { useRouter } from 'next/router';
 import axios from 'axios';
 
-interface EnhancedUser extends User {
+export interface EnhancedUser extends User {
   bggUsername?: string;
 }
 

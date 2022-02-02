@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useUser } from '@context/user';
+import { supabase } from '@utils/supabase';
 import Email from './Email';
 import Confirmation from './Confirmation';
 import BGGUsername from './BGGUsername';
 import { RoughNotation, RoughNotationGroup } from 'react-rough-notation';
 
+import type { GetServerSideProps } from 'next';
 import Image from 'next/image';
 
 export const AuthComponent = () => {
@@ -84,4 +86,28 @@ export const AuthComponent = () => {
       </div>
     </main>
   );
+};
+
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+  const { user } = await supabase.auth.api.getUserByCookie(req);
+
+  const { data: bggUsername, error } = await supabase
+    .from('profile')
+    .select('bggUsername')
+    .eq('id', user?.id)
+    .single();
+
+  if (user && user?.confirmed_at && bggUsername) {
+    return {
+      redirect: {
+        permanent: false,
+        destination: '/',
+      },
+      props: {},
+    };
+  }
+
+  return {
+    props: {},
+  };
 };

@@ -1,1 +1,2 @@
-export { AuthComponent } from './AuthComponent';
+export { AuthComponent } from './Auth';
+export { Spinner } from './Spinner';

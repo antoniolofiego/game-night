@@ -8,9 +8,13 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import type { Game, CollectionItem, SupabaseCollectionItem } from '@typings';
 
 const BASE_URL = 'https://www.boardgamegeek.com/xmlapi2';
+const DEFAULT_TIMEOUT = 5000;
 
-const setTimeoutAsCallback = (callback: () => any) => {
-  setTimeout(callback, 5000);
+const setTimeoutAsCallback = (
+  callback: () => any,
+  timeout = DEFAULT_TIMEOUT
+) => {
+  setTimeout(callback, timeout);
 };
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
@@ -25,7 +29,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const import_only: string | null = req.query.import_only as string;
   const method: string = req.method as string;
 
+  // GET Handler
   const getUserCollection = async () => {
+    // If we have a username in the GET handler, throw unallowed error status
     if (username) {
       res.status(406).send({
         message:
@@ -33,36 +39,41 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       });
     }
 
-    if (user_id) {
-      try {
-        const { data, error } = await supabase
-          .from('userCollections')
-          .select('boardgames(*), shelfOfShame, playCount')
-          .eq('user_id', user_id);
+    //
+    if (!user_id) {
+      res.status(400).send({ message: 'Please, provide a user_id' });
+    }
 
-        const parsedCollection: Game[] = data?.map(
-          (game: SupabaseCollectionItem) => {
-            return {
-              ...game.boardgames,
-              shelfOfShame: game.shelfOfShame,
-              playCount: game.playCount,
-            };
-          }
-        ) as Game[];
+    try {
+      const { data, error } = await supabase
+        .from('userCollections')
+        .select('boardgames(*), shelfOfShame, playCount')
+        .eq('user_id', user_id);
 
-        if (error) {
-          res.status(500).send(error);
+      const parsedCollection: Game[] = data?.map(
+        (game: SupabaseCollectionItem) => {
+          return {
+            ...game.boardgames,
+            shelfOfShame: game.shelfOfShame,
+            playCount: game.playCount,
+          };
         }
+      ) as Game[];
 
-        res.status(200).send(parsedCollection);
-      } catch (err) {
-        console.log(err);
+      if (error) {
+        res.status(500).send(error);
       }
+
+      res.status(200).send(parsedCollection);
+    } catch (err) {
+      console.log(err);
     }
   };
 
   const createOrUpdateCollection = async () => {
     const URL = `${BASE_URL}/collection?username=${username}&own=1`;
+
+    let retries = 0;
 
     // Collect response from collection endpoint on BGG
     const response = await axios.get(URL, {
@@ -71,13 +82,21 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     });
 
     switch (response.status) {
-      // If queued response, retry the query after 5 seconds
+      // If request is accepted and queued, retry the query after 5 seconds
       case 202: {
         setTimeoutAsCallback(() => createOrUpdateCollection());
         break;
       }
+      // If too many requests, wait 2 seconds multiplied by the number of retries and send again up to 3 times
       case 429: {
-        res.send({ message: 'Too many requests' });
+        const WAIT_UNIT = 2000;
+        const fallback = retries * WAIT_UNIT;
+
+        if (retries < 3) {
+          setTimeoutAsCallback(() => createOrUpdateCollection(), fallback);
+          retries += 1;
+        }
+
         break;
       }
       case 200: {
@@ -112,7 +131,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
           // To update the boardgames table we need a comma-separated list of game IDs
           ids = collectionResults?.map((item) => item.bgg_id).join(',');
-          const idsArray = collectionResults?.map((item) => item.bgg_id);
+          const idsArray = collectionResults?.map((item) => item.bgg_id) || [];
 
           try {
             // Call our game parsing endpoint
@@ -132,7 +151,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
             const { data: games, error } = await supabase
               .from('boardgames')
               .select('*')
-              .in('bgg_id', idsArray as Number[]);
+              .in('bgg_id', idsArray);
 
             if (error) {
               res.status(500).send({ message: error.message });

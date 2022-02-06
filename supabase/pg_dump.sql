@@ -1,10 +1,3 @@
---
--- PostgreSQL database dump
---
-
--- Dumped from database version 14.1
--- Dumped by pg_dump version 14.1
-
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
@@ -965,3 +958,15 @@ ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA storage GRANT ALL ON TABLES
 ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA storage GRANT ALL ON TABLES  TO anon;
 ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA storage GRANT ALL ON TABLES  TO authenticated;
 ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA storage GRANT ALL ON TABLES  TO service_role;
+
+
+DROP TRIGGER IF EXISTS create_profile_for_user on auth.users;
+CREATE TRIGGER create_profile_for_user
+AFTER INSERT ON auth.users
+FOR EACH ROW EXECUTE PROCEDURE create_profile_for_user();
+
+
+DROP TRIGGER IF EXISTS update_confirmation_timestamp on auth.users;
+CREATE TRIGGER update_confirmation_timestamp
+AFTER UPDATE ON auth.users
+FOR EACH ROW EXECUTE PROCEDURE update_confirmation_timestamp();

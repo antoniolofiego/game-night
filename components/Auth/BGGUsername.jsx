@@ -1,18 +1,13 @@
 import { useState } from 'react';
-import type { FormEvent } from 'react';
 import { useUser } from '@context/user';
 import { supabase } from '@utils/supabase';
 
-type BGGUsernameProps = {
-  next: () => void;
-};
-
-const BGGUsername: React.FC<BGGUsernameProps> = ({ next }) => {
+const BGGUsername = ({ next }) => {
   const [BGGUsername, setBGGUsername] = useState('');
 
   const { user, isLoading } = useUser();
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const { data: userData, error } = await supabase
       .from('profile')

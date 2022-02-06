@@ -1,18 +1,12 @@
 import { useState } from 'react';
-import type { FormEvent } from 'react';
 import { useUser } from '@context/user';
 
-type EmailProps = {
-  next: () => void;
-  handleEmail: (email: string) => void;
-};
-
-const Email: React.FC<EmailProps> = ({ next, handleEmail }) => {
+const Email = ({ next, handleEmail }) => {
   const [email, setEmail] = useState('');
 
   const { login } = useUser();
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       login(email);

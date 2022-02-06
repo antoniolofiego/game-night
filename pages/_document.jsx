@@ -1,16 +1,7 @@
-import Document, {
-  Html,
-  Head,
-  Main,
-  NextScript,
-  DocumentInitialProps,
-  DocumentContext,
-} from 'next/document';
+import Document, { Html, Head, Main, NextScript } from 'next/document';
 
 class MyDocument extends Document {
-  static async getInitialProps(
-    ctx: DocumentContext
-  ): Promise<DocumentInitialProps> {
+  static async getInitialProps(ctx) {
     const initialProps = await Document.getInitialProps(ctx);
     return { ...initialProps };
   }
@@ -28,11 +19,9 @@ class MyDocument extends Document {
             rel='stylesheet'
           />
         </Head>
-        <body className='bg-gradient-to-tl from-blue-200 dark:from-blue-900 to-transparent dark:to-black'>
-          <Main />
-          <NextScript />
-          <div id='modal-root'></div>
-        </body>
+        <Main />
+        <NextScript />
+        <div id='modal-root'></div>
       </Html>
     );
   }

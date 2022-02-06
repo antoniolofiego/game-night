@@ -1,8 +1,4 @@
-type SpinnerProps = {
-  [x: string]: any;
-};
-
-export const Spinner: React.FC<SpinnerProps> = ({ ...props }) => {
+export const Spinner = ({ ...props }) => {
   return (
     <div className='flex justify-center'>
       <svg

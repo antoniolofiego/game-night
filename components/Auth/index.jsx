@@ -7,7 +7,6 @@ import Confirmation from './Confirmation';
 import BGGUsername from './BGGUsername';
 import { RoughNotation, RoughNotationGroup } from 'react-rough-notation';
 
-import type { GetServerSideProps } from 'next';
 import Image from 'next/image';
 
 export const AuthComponent = () => {

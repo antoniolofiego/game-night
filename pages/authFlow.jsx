@@ -1,13 +1,7 @@
 import { AuthComponent } from '@components';
-import { GetServerSideProps } from 'next';
 import { supabase } from '@utils/supabase';
-import { PostgrestError } from '@supabase/supabase-js';
 
-type AuthFlowProps = {
-  error?: PostgrestError;
-};
-
-const AuthFlow: React.FC<AuthFlowProps> = ({ error }) => {
+const AuthFlow = ({ error }) => {
   return (
     <>
       {error ? (
@@ -21,7 +15,7 @@ const AuthFlow: React.FC<AuthFlowProps> = ({ error }) => {
 
 export default AuthFlow;
 
-export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+export const getServerSideProps = async ({ req }) => {
   const { user } = await supabase.auth.api.getUserByCookie(req);
 
   if (!user) {

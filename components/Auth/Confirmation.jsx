@@ -1,8 +1,4 @@
-type ConfirmationProps = {
-  email: string;
-};
-
-const Confirmation: React.FC<ConfirmationProps> = ({ email }) => {
+const Confirmation = ({ email }) => {
   return (
     <div>
       <p>

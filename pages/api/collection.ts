@@ -22,50 +22,58 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   const username: string = req.query.username as string;
   const user_id: string = req.query.user_id as string;
+  const import_only: string | null = req.query.import_only as string;
   const method: string = req.method as string;
 
-  const getCollection = async () => {
+  const getUserCollection = async () => {
     if (username) {
-      res.status(501).send('Not yet implemented');
+      res.status(406).send({
+        message:
+          'Use POST method to get a collection by BoardGameGeek username.',
+      });
     }
 
-    try {
-      const { data, error } = await supabase
-        .from('userCollections')
-        .select('boardgames(*), shelfOfShame, playCount')
-        .eq('user_id', user_id);
+    if (user_id) {
+      try {
+        const { data, error } = await supabase
+          .from('userCollections')
+          .select('boardgames(*), shelfOfShame, playCount')
+          .eq('user_id', user_id);
 
-      const parsedCollection: Game[] = data?.map(
-        (game: SupabaseCollectionItem) => {
-          return {
-            ...game.boardgames,
-            shelfOfShame: game.shelfOfShame,
-            playCount: game.playCount,
-          };
+        const parsedCollection: Game[] = data?.map(
+          (game: SupabaseCollectionItem) => {
+            return {
+              ...game.boardgames,
+              shelfOfShame: game.shelfOfShame,
+              playCount: game.playCount,
+            };
+          }
+        ) as Game[];
+
+        if (error) {
+          res.status(500).send(error);
         }
-      ) as Game[];
 
-      if (error) {
-        res.status(500).send(error);
+        res.status(200).send(parsedCollection);
+      } catch (err) {
+        console.log(err);
       }
-
-      res.status(200).send(parsedCollection);
-    } catch (err) {
-      console.log(err);
     }
   };
 
-  const updateCollection = async () => {
+  const createOrUpdateCollection = async () => {
     const URL = `${BASE_URL}/collection?username=${username}&own=1`;
 
+    // Collect response from collection endpoint on BGG
     const response = await axios.get(URL, {
       responseType: 'text',
       timeout: 15000,
     });
 
     switch (response.status) {
+      // If queued response, retry the query after 5 seconds
       case 202: {
-        setTimeoutAsCallback(() => updateCollection());
+        setTimeoutAsCallback(() => createOrUpdateCollection());
         break;
       }
       case 429: {
@@ -79,43 +87,70 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
           let collectionResults:
             | {
                 bgg_id: number;
-                user_id: string;
+                user_id: string | undefined;
               }[]
             | undefined;
 
           const { user } = await supabase.auth.api.getUserByCookie(req);
 
-          if (!user) {
-            res.status(403);
+          if (!import_only && !user) {
+            res.status(403).send({ message: 'Not logged in' });
+            break;
           }
 
-          if (user) {
-            parseString(response.data, (err, result) => {
-              const collection: CollectionItem[] = result.items.item;
-              collectionResults = collection.map((game: CollectionItem) => {
-                return {
-                  bgg_id: parseInt(game.$.objectid),
-                  user_id: user.id,
-                };
-              });
+          parseString(response.data, (err, result) => {
+            const collection: CollectionItem[] = result.items.item;
+
+            // We receive a collection of ids and a single user_id if a user is logged in.
+            collectionResults = collection.map((game: CollectionItem) => {
+              return {
+                bgg_id: parseInt(game.$.objectid),
+                user_id: user?.id,
+              };
             });
+          });
 
-            ids = collectionResults?.map((item) => item.bgg_id).join(',');
+          // To update the boardgames table we need a comma-separated list of game IDs
+          ids = collectionResults?.map((item) => item.bgg_id).join(',');
+          const idsArray = collectionResults?.map((item) => item.bgg_id);
 
-            try {
-              await axios.post(
-                `http://localhost:3000/api/update-game?id=${ids}`
-              );
-            } catch (err) {
-              if (err.response?.status) {
-                res.status(err.response.status).send({ message: err.message });
-                break;
-              }
-
-              res.status(500).send(err.message);
+          try {
+            // Call our game parsing endpoint
+            await axios.post(`http://localhost:3000/api/update-game?id=${ids}`);
+          } catch (err) {
+            if (err.response?.status) {
+              res.status(err.response.status).send({ message: err.message });
               break;
             }
 
+            res.status(500).send(err.message);
+            break;
+          }
+
+          // If we want to only import a new set of games (for example to check an unauthenticated user collection) we need to pass the query param import_only
+          if (import_only === '1') {
+            const { data: games, error } = await supabase
+              .from('boardgames')
+              .select('*')
+              .in('bgg_id', idsArray as Number[]);
+
+            if (error) {
+              res.status(500).send({ message: error.message });
+            }
+
+            res.status(200).send(games);
+            break;
+          }
+
+          // After this point, we assume that the user is logged in and they're trying to update their own collection from BGG
+          // If the user is not logged in, we throw an unauthenticated status
+          if (!user) {
+            res.status(403).send({ message: 'Not logged in' });
+            break;
+          }
+
+          if (user) {
+            // If there are any items in the user collection, we upsert that user's collection in Supabase
             if (collectionResults) {
               const { data, error } = await supabase
                 .from('userCollections')
@@ -129,7 +164,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
               break;
             }
 
-            res.status(500);
+            res.status(500).send({ message: 'Unexpected server error.' });
+            break;
           }
           break;
         } catch (err) {
@@ -149,11 +185,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   switch (method) {
     case 'GET': {
-      await getCollection();
+      await getUserCollection();
       break;
     }
     case 'POST': {
-      await updateCollection();
+      await createOrUpdateCollection();
       break;
     }
     default: {

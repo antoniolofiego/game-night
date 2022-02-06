@@ -87,27 +87,3 @@ export const AuthComponent = () => {
     </main>
   );
 };
-
-export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-  const { user } = await supabase.auth.api.getUserByCookie(req);
-
-  const { data: bggUsername, error } = await supabase
-    .from('profile')
-    .select('bggUsername')
-    .eq('id', user?.id)
-    .single();
-
-  if (user && user?.confirmed_at && bggUsername) {
-    return {
-      redirect: {
-        permanent: false,
-        destination: '/',
-      },
-      props: {},
-    };
-  }
-
-  return {
-    props: {},
-  };
-};

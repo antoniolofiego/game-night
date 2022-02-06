@@ -1,1 +1,1 @@
-supabase/pg_dump.sql -linguist-detectable
+supabase/pg_dump.sql linguist-detectable=false

@@ -18,18 +18,19 @@ export default AuthFlow;
 export const getServerSideProps = async ({ req }) => {
   const { user } = await supabase.auth.api.getUserByCookie(req);
 
+  // If user is not logged in, start the user flow as normal
   if (!user) {
     return { props: {} };
   }
 
+  // Collect username if exists
   const { data: bggUsername, error } = await supabase
     .from('profile')
     .select('bggUsername')
     .eq('id', user?.id)
     .single();
 
-  console.log(bggUsername);
-
+  // If the username is set and the account has been confirmed, redirect to the
   if (user && user?.confirmed_at && bggUsername.bggUsername !== null) {
     return {
       redirect: {
@@ -40,11 +41,10 @@ export const getServerSideProps = async ({ req }) => {
     };
   }
 
-  console.log(error);
-
+  // If there's an error, show it on the pag
   if (error) {
     return {
-      props: { error },
+      props: { error: error },
     };
   }
 

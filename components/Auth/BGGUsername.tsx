@@ -37,6 +37,7 @@ const BGGUsername: React.FC<BGGUsernameProps> = ({ next }) => {
         value={BGGUsername}
         onChange={(e) => setBGGUsername(e.target.value.trim())}
         placeholder='Your BGG Username'
+        className='dark:bg-slate-900'
       />
       <button type='submit'>Submit</button>
     </form>

@@ -1,9 +1,6 @@
 import { supabase } from '@utils/supabase';
 
 const GamePage = ({ game }) => {
-  const parsedDescription = game.description.replace('&#10;', '\n');
-  console.log(parsedDescription);
-
   return (
     <div>
       <p>{game.name}</p>
@@ -17,9 +14,7 @@ const GamePage = ({ game }) => {
 };
 
 export const getStaticPaths = async () => {
-  const { data: ids, error } = await supabase
-    .from('boardgames')
-    .select('bgg_id');
+  const { data: ids } = await supabase.from('boardgames').select('bgg_id');
 
   const paths = ids.map((id) => {
     return { params: { bgg_id: id.bgg_id.toString() } };
@@ -27,7 +22,7 @@ export const getStaticPaths = async () => {
 
   return {
     paths: paths,
-    fallback: false,
+    fallback: true,
   };
 };
 

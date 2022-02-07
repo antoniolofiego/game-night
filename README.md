@@ -29,3 +29,5 @@ To create your development environment, you need to follow a few steps:
 5. Copy these keys into `MODIFY.env.local` and rename the file to `.env.local`.
 6. Go to the SQL editor in Supabase (found at the `/sql` endpoint in your project)
 7. Copy the `/supabase/pg_dump.sql` file and run it to generate all the tables, functions and triggers that you need to run the app appropriately.
+8. Run `npm run dev` and navigate to `http://localhost:3000/`.
+9. You should be able to login and use the app as expected.

@@ -16,7 +16,7 @@ const Games = ({ games }) => {
     const nextStep = gamesList.length;
     const { data: newGames, error } = await supabase
       .from('boardgames')
-      .select('*')
+      .select('id, name, bgg_id')
       .order('rank', { ascending: true })
       .range(nextStep, nextStep + 49);
 
@@ -52,7 +52,7 @@ export default Games;
 export const getStaticProps = async () => {
   const { data: games, error } = await supabase
     .from('boardgames')
-    .select('*')
+    .select('id, name, bgg_id')
     .order('rank', { ascending: true })
     .range(0, 49);
 

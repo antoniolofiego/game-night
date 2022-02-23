@@ -1,5 +1,5 @@
-![GitHub-Mark-Dark](https://raw.githubusercontent.com/antoniolofiego/game-night/develop/docs/assets/LogoLight.png#gh-light-mode-only)
-![GitHub-Mark-Dark](https://raw.githubusercontent.com/antoniolofiego/game-night/develop/docs/assets/LogoDark.png#gh-dark-mode-only)
+![GameNight Logo](https://raw.githubusercontent.com/antoniolofiego/game-night/develop/docs/assets/LogoLight.png#gh-light-mode-only)
+![GameNight Logo](https://raw.githubusercontent.com/antoniolofiego/game-night/develop/docs/assets/LogoDark.png#gh-dark-mode-only)
 
 A **very** in-development project for board game enthusiasts. An all-encompassing tool to feed your board game addiction.
 

@@ -1,13 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import Image from 'next/image';
 import { useUser } from '@context/user';
 import { supabase } from '@utils/supabase';
 import Email from './Email';
 import Confirmation from './Confirmation';
 import BGGUsername from './BGGUsername';
-import { RoughNotation, RoughNotationGroup } from 'react-rough-notation';
-
-import Image from 'next/image';
 
 export const AuthComponent = () => {
   const [step, setStep] = useState(0);
@@ -44,45 +42,14 @@ export const AuthComponent = () => {
   ];
 
   return (
-    <main className='grid items-center w-full h-screen grid-cols-2'>
-      <div className='relative'>
-        <div className='absolute inset-0 z-50 flex flex-col items-center justify-center h-screen px-8 mx-auto space-y-4'>
-          <RoughNotationGroup show={true}>
-            <RoughNotation
-              type='highlight'
-              strokeWidth={12}
-              padding={12}
-              order={1}
-            >
-              <h1 className='text-5xl shadow-xl text-slate-900 font-handwritten'>
-                Welcome to GameNight!
-              </h1>
-            </RoughNotation>
-            <RoughNotation
-              type='highlight'
-              strokeWidth={12}
-              padding={12}
-              order={2}
-            >
-              <p className='text-slate-900'>
-                You&apos;re almost ready to get your next board game night
-                going.
-              </p>
-            </RoughNotation>
-          </RoughNotationGroup>
-        </div>
-        <div className='relative z-20 w-full h-screen blur-sm'>
-          <Image
-            src={imgUrl}
-            alt='Image of a die on a table'
-            layout='fill'
-            objectFit='cover'
-          />
-        </div>
-      </div>
-      <div className='flex max-w-xs mx-auto md:max-w-md lg:max-w-xl'>
-        {ShownStep[step]}
-      </div>
+    <main className='flex flex-col items-center justify-center h-screen space-y-8'>
+      <Image
+        src='/images/LogoDark.png'
+        height={50}
+        width={223}
+        alt='gamenight Logo'
+      />
+      <div className=''>{ShownStep[step]}</div>
     </main>
   );
 };

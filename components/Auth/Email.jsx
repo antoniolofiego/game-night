@@ -18,7 +18,7 @@ const Email = ({ next, handleEmail }) => {
   };
 
   return (
-    <form onSubmit={(e) => handleSubmit(e)} className='flex flex-col space-y-5'>
+    <form onSubmit={(e) => handleSubmit(e)} className='flex flex-col space-y-4'>
       <label>Email</label>
       <input
         type='email'
@@ -28,7 +28,12 @@ const Email = ({ next, handleEmail }) => {
         placeholder='your@email.com'
         className='dark:bg-slate-900'
       />
-      <button type='submit'>Next</button>
+      <button
+        className='self-center px-8 py-2 text-gray-900 border border-gray-400 rounded-full shadow shadow-gray-200 bg-gray-50'
+        type='submit'
+      >
+        Next
+      </button>
     </form>
   );
 };

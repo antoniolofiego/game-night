@@ -1,1 +1,1 @@
-export { Shelf } from './Shelf';
+export { Table } from './Table';

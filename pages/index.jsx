@@ -1,27 +1,26 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useUser } from '@context/user';
 import Image from 'next/image';
 import Link from 'next/link';
 import axios from 'axios';
-import { Spinner } from '@components';
+import { Collection, Spinner } from '@components';
 
-const backgroundCombinations = [
-  'bg-gradient-to-tr from-red-700 to-red-900',
-  'bg-gradient-to-tr from-slate-700 to-slate-900',
-  'bg-gradient-to-tr from-emerald-700 to-emerald-900',
-  'bg-gradient-to-tr from-blue-700 to-blue-900',
-  'bg-gradient-to-tr from-sky-700 to-sky-900',
-  'bg-gradient-to-tr from-zinc-700 to-zinc-900',
-  'bg-gradient-to-tr from-yellow-700 to-yellow-900',
-  'bg-gradient-to-tr from-orange-700 to-orange-900',
-  'bg-gradient-to-tr from-green-700 to-green-900',
-  'bg-gradient-to-tr from-violet-700 to-violet-900',
-  'bg-gradient-to-tr from-teal-700 to-teal-900',
-  'bg-gradient-to-tr from-amber-700 to-amber-900',
-  'bg-gradient-to-tr from-rose-700 to-rose-900',
-  'bg-gradient-to-tr from-indigo-700 to-indigo-900',
-  'bg-gradient-to-tr from-fuchsia-700 to-fuchsia-900',
-];
+const ArrayValues = ({ values }) => {
+  return (
+    <div className='flex flex-wrap items-center max-w-xl gap-1'>
+      {values.map((genre, idx) => {
+        return (
+          <span
+            key={idx}
+            className='px-2 py-1 text-gray-900 rounded-full bg-gray-50'
+          >
+            {genre}
+          </span>
+        );
+      })}
+    </div>
+  );
+};
 
 const Home = () => {
   const { user, isLoading } = useUser();
@@ -32,6 +31,8 @@ const Home = () => {
       const data = await axios
         .get(`/api/collection?user_id=${user?.id}`)
         .then((res) => res.data);
+
+      data = data.filter((game) => game.rank !== null);
       setCollection(() => data);
     };
 
@@ -39,6 +40,63 @@ const Home = () => {
       fetchData();
     }
   }, [user, isLoading]);
+
+  console.log(collection);
+
+  const columns = useMemo(
+    () => [
+      {
+        Header: 'Collection',
+        columns: [
+          {
+            Header: 'BGG ID',
+            accessor: 'bgg_id',
+          },
+          {
+            Header: 'Name',
+            accessor: 'name',
+          },
+          {
+            Header: 'Minimum Players',
+            accessor: 'minPlayers',
+          },
+          {
+            Header: 'Maximum Players',
+            accessor: 'maxPlayers',
+          },
+          {
+            Header: 'Playing Time',
+            accessor: 'playingTime',
+          },
+          {
+            Header: 'Rating',
+            accessor: 'rating',
+          },
+          {
+            Header: 'Rank',
+            accessor: 'rank',
+          },
+          {
+            Header: 'Weight',
+            accessor: 'weight',
+          },
+          {
+            Header: 'Mechanics',
+            accessor: 'mechanics',
+            Cell: ({ cell: { value } }) => <ArrayValues values={value} />,
+          },
+          {
+            Header: 'Categories',
+            accessor: 'categories',
+            Cell: ({ cell: { value } }) => <ArrayValues values={value} />,
+          },
+        ],
+      },
+    ],
+    []
+  );
+
+  console.log(collection);
 
   return (
     <div>
@@ -49,17 +107,23 @@ const Home = () => {
         <>
           <h1>{user?.bggUsername}</h1>
           <h2>{user?.email}</h2>
-          {user ? (
-            <Link href='/logout'>Logout</Link>
-          ) : (
-            <Link href='/authFlow'>Login</Link>
-          )}
+          <button
+            onClick={() =>
+              axios.post(`/api/collection?username=${user?.bggUsername}`)
+            }
+          >
+            Import your collection!
+          </button>
+
+          <div>
+            {user ? (
+              <Link href='/logout'>Logout</Link>
+            ) : (
+              <Link href='/authFlow'>Login</Link>
+            )}
+          </div>
           {collection.length > 0 ? (
-            <div>
-              {collection.map((game) => (
-                <p key={game.id}>{game.name}</p>
-              ))}
-            </div>
+            <Collection.Table columns={columns} data={collection} />
           ) : (
             <div>
               No games to show. Wanna add some?{' '}

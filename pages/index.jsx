@@ -1,4 +1,4 @@
-import { useState, useEffect, memo } from 'react';
+import { useState, useEffect } from 'react';
 import { useUser } from '@context/user';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -40,13 +40,6 @@ const Home = () => {
     }
   }, [user, isLoading]);
 
-  let chunkedCollection = [];
-  const chunk = 3;
-
-  for (let i = 0; i < collection.length; i += chunk) {
-    chunkedCollection.push(collection.slice(i, i + chunk));
-  }
-
   return (
     <div>
       <h1>Home component</h1>
@@ -62,31 +55,10 @@ const Home = () => {
             <Link href='/authFlow'>Login</Link>
           )}
           {collection.length > 0 ? (
-            <div className='max-w-4xl m-2 mx-auto bg-red-800 border-4 border-black'>
-              <div className='flex flex-wrap gap-2 border-8 border-orange-800'>
-                {chunkedCollection.map((chunk, i) => {
-                  return (
-                    <div
-                      key={i}
-                      className='flex flex-col items-center justify-end flex-grow w-48 px-2 my-2'
-                    >
-                      {chunk.map((game) => {
-                        const backgroundColor =
-                          backgroundCombinations[game.bgg_id % 15];
-
-                        return (
-                          <div
-                            key={game.bgg_id}
-                            className={`flex justify-center w-48 border min-w-fit items-center basis-16 ${backgroundColor} hover:scale-110 transition-all`}
-                          >
-                            <p className='mx-2 my-4 text-center'>{game.name}</p>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  );
-                })}
-              </div>
+            <div>
+              {collection.map((game) => (
+                <p key={game.id}>{game.name}</p>
+              ))}
             </div>
           ) : (
             <div>

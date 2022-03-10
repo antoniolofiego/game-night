@@ -8,7 +8,7 @@ const Home = () => {
   const [bggUsername, setBggUsername] = useState('');
 
   const fetchData = async () => {
-    const res = await axios.get(`/api/v2/collection?username=${bggUsername}`);
+    const res = await axios.get(`/api/collection?username=${bggUsername}`);
     return res;
   };
 

@@ -87,7 +87,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
           try {
             // Call our game parsing endpoint
             const { data } = await axios.post<Game[]>(
-              `http://localhost:3000/api/v2/update-game?id=${ids}`
+              `http://localhost:3000/api/update-game?id=${ids}`
             );
 
             res.status(200).send({ username: username, games: data });

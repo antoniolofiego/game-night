@@ -1,4 +1,3 @@
-import UserProvider from '@context/user';
 import { ThemeProvider } from 'next-themes';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
@@ -11,10 +10,8 @@ function MyApp({ Component, pageProps }) {
   return (
     <ThemeProvider attribute='class'>
       <QueryClientProvider client={queryClient}>
-        <UserProvider>
-          <Component {...pageProps} />
-          <ReactQueryDevtools />
-        </UserProvider>
+        <Component {...pageProps} />
+        <ReactQueryDevtools />
       </QueryClientProvider>
     </ThemeProvider>
   );

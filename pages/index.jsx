@@ -1,28 +1,29 @@
-import { useState, useEffect, useMemo } from 'react';
-import { useUser } from '@context/user';
-import Image from 'next/image';
-import Link from 'next/link';
+import { useState, useMemo } from 'react';
 import axios from 'axios';
-import { Collection, Spinner } from '@components';
+import { Collection } from '@components';
+import { useFormik } from 'formik';
+import { useQuery } from 'react-query';
 
 const Home = () => {
-  const { user, isLoading } = useUser();
-  const [collection, setCollection] = useState([]);
+  const [bggUsername, setBggUsername] = useState('');
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const data = await axios
-        .get(`/api/collection?user_id=${user?.id}`)
-        .then((res) => res.data);
+  const fetchData = async () => {
+    const res = await axios.get(`/api/v2/collection?username=${bggUsername}`);
+    return res;
+  };
 
-      data = data.filter((game) => game.rank !== null);
-      setCollection(() => data);
-    };
+  const { isLoading, data } = useQuery(['collection', bggUsername], fetchData, {
+    enabled: bggUsername !== '',
+  });
 
-    if (!isLoading && user) {
-      fetchData();
-    }
-  }, [user, isLoading, collection]);
+  const formik = useFormik({
+    initialValues: {
+      username: '',
+    },
+    onSubmit: (values) => {
+      setBggUsername(values.username);
+    },
+  });
 
   const columns = useMemo(
     () => [
@@ -52,7 +53,9 @@ const Home = () => {
           {
             Header: 'Rating',
             accessor: 'rating',
-            Cell: ({ cell: { value } }) => <p>{value.toFixed(2)}</p>,
+            Cell: ({ cell: { value } }) => (
+              <p>{value ? value.toFixed(2) : 'NA'}</p>
+            ),
           },
           {
             Header: 'Rank',
@@ -61,7 +64,9 @@ const Home = () => {
           {
             Header: 'Weight',
             accessor: 'weight',
-            Cell: ({ cell: { value } }) => <p>{value.toFixed(2)}</p>,
+            Cell: ({ cell: { value } }) => (
+              <p>{value ? value.toFixed(2) : 'NA'}</p>
+            ),
           },
           {
             Header: 'Mechanics',
@@ -86,50 +91,25 @@ const Home = () => {
   return (
     <div>
       <h1>Home component</h1>
-      {isLoading && user ? (
-        <Spinner />
-      ) : (
-        <>
-          <h1>{user?.bggUsername}</h1>
-          <h2>{user?.email}</h2>
-          <button
-            onClick={() =>
-              axios.post(`/api/collection?username=${user?.bggUsername}`)
-            }
-          >
-            Import your collection!
-          </button>
-          <div>
-            {user ? (
-              <Link href='/logout'>Logout</Link>
-            ) : (
-              <Link href='/authFlow'>Login</Link>
-            )}
-          </div>
-          {collection.length > 0 ? (
-            <Collection.Table columns={columns} data={collection} />
-          ) : (
-            <div>
-              No games to show. Wanna add some?{' '}
-              {user ? (
-                <button
-                  onClick={() =>
-                    axios.post(`/api/collection?username=${user?.bggUsername}`)
-                  }
-                >
-                  Import your collection!
-                </button>
-              ) : (
-                <Link href='/authFlow'>
-                  <a className='cursor-pointer hover:underline'>
-                    Login or create an account now
-                  </a>
-                </Link>
-              )}
-            </div>
-          )}
-        </>
-      )}
+      <form onSubmit={formik.handleSubmit}>
+        <input
+          className='bg-gray-900'
+          type='text'
+          placeholder='BGG username'
+          id='username'
+          name='username'
+          onChange={formik.handleChange}
+          value={formik.values.username}
+        />
+        <button type='submit'>Submit</button>
+      </form>
+
+      {data && !isLoading ? (
+        <Collection.Table
+          columns={columns}
+          data={data.data.games.filter((game) => game.rank >= 1)}
+        />
+      ) : null}
     </div>
   );
 };

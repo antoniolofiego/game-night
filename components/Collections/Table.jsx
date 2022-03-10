@@ -21,7 +21,16 @@ export const Table = ({ columns, data }) => {
     {
       columns,
       data,
+      initialState: {
+        sortBy: [
+          {
+            id: 'name',
+            desc: false,
+          },
+        ],
+      },
     },
+
     useFilters,
     useSortBy
   );

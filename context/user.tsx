@@ -55,7 +55,7 @@ const UserProvider: React.FC = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    axios.post('/api/set-supabase-cookie', {
+    axios.post('/api/v1/set-supabase-cookie', {
       event: user ? 'SIGNED_IN' : 'SIGNED_OUT',
       session: supabase.auth.session(),
     });

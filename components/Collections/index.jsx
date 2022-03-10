@@ -1,1 +1,2 @@
-export { Shelf } from './Shelf';
+export { Table } from './Table';
+export { ArrayValues } from './Table/ArrayValues';

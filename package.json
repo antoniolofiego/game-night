@@ -20,6 +20,7 @@
     "nextjs-cors": "^2.1.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "react-query": "^3.34.16",
     "react-rough-notation": "^1.0.1",
     "react-table": "^7.7.0",
     "usehooks-ts": "^2.2.1",

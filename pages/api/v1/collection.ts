@@ -135,7 +135,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
           try {
             // Call our game parsing endpoint
-            await axios.post(`http://localhost:3000/api/update-game?id=${ids}`);
+            await axios.post(
+              `http://localhost:3000/api/v1/update-game?id=${ids}`
+            );
           } catch (err) {
             if (err.response?.status) {
               res.status(err.response.status).send({ message: err.message });

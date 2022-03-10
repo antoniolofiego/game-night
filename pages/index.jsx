@@ -5,23 +5,6 @@ import Link from 'next/link';
 import axios from 'axios';
 import { Collection, Spinner } from '@components';
 
-const ArrayValues = ({ values }) => {
-  return (
-    <div className='flex flex-wrap items-center max-w-xl gap-1'>
-      {values.map((genre, idx) => {
-        return (
-          <span
-            key={idx}
-            className='px-2 py-1 text-gray-900 rounded-full bg-gray-50'
-          >
-            {genre}
-          </span>
-        );
-      })}
-    </div>
-  );
-};
-
 const Home = () => {
   const { user, isLoading } = useUser();
   const [collection, setCollection] = useState([]);
@@ -39,9 +22,7 @@ const Home = () => {
     if (!isLoading && user) {
       fetchData();
     }
-  }, [user, isLoading]);
-
-  console.log(collection);
+  }, [user, isLoading, collection]);
 
   const columns = useMemo(
     () => [
@@ -71,6 +52,7 @@ const Home = () => {
           {
             Header: 'Rating',
             accessor: 'rating',
+            Cell: ({ cell: { value } }) => <p>{value.toFixed(2)}</p>,
           },
           {
             Header: 'Rank',
@@ -79,24 +61,27 @@ const Home = () => {
           {
             Header: 'Weight',
             accessor: 'weight',
+            Cell: ({ cell: { value } }) => <p>{value.toFixed(2)}</p>,
           },
           {
             Header: 'Mechanics',
             accessor: 'mechanics',
-            Cell: ({ cell: { value } }) => <ArrayValues values={value} />,
+            Cell: ({ cell: { value } }) => (
+              <Collection.ArrayValues values={value} />
+            ),
           },
           {
             Header: 'Categories',
             accessor: 'categories',
-            Cell: ({ cell: { value } }) => <ArrayValues values={value} />,
+            Cell: ({ cell: { value } }) => (
+              <Collection.ArrayValues values={value} />
+            ),
           },
         ],
       },
     ],
     []
   );
-
-  console.log(collection);
 
   return (
     <div>
@@ -114,7 +99,6 @@ const Home = () => {
           >
             Import your collection!
           </button>
-
           <div>
             {user ? (
               <Link href='/logout'>Logout</Link>
